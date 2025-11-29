@@ -10,4 +10,10 @@ pub enum ErrorCode {
     NotAuthorized,
     #[msg("The collection has already been initialized.")]
     CollectionAlreadyInitialized,
+    #[msg("The asset has already been initialized.")]
+    AssetAlreadyInitialized,
+    #[msg("The collection is not initialized.")]
+    CollectionNotInitialized,
+    #[msg("The collection is invalid.")]
+    InvalidCollection,
 }
