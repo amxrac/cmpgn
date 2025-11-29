@@ -29,7 +29,7 @@ describe("cmpgn", () => {
           .accounts({
             gameAuthority: gameAuthority.publicKey,
             campaign: campaignPda,
-            SystemProgram: SystemProgram.programId,
+            systemProgram: SystemProgram.programId,
           })
           .rpc();
       } catch (error: any) {

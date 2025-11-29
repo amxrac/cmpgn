@@ -18,4 +18,8 @@ pub mod cmpgn {
     pub fn initialize(ctx: Context<InitializeCampaign>, campaign_id: u8) -> Result<()> {
         instructions::initialize_campaign::handler(ctx, campaign_id)
     }
+
+    // pub fn
 }
+
+//         constraint = campaign_completion.campaign_id == campaign.campaign_id @ ErrorCode::InvalidCampaignId
