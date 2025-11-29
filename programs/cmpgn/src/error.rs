@@ -6,4 +6,8 @@ pub enum ErrorCode {
     InvalidCampaignId,
     #[msg("Invalid Bug Id")]
     BugIdOutOfRange,
+    #[msg("The payer is not the program's upgrade authority.")]
+    NotAuthorized,
+    #[msg("The collection has already been initialized.")]
+    CollectionAlreadyInitialized,
 }
