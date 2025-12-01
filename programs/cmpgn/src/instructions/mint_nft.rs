@@ -8,6 +8,7 @@ use mpl_core::{
 use crate::{error::ErrorCode, state::CollectionAuthority, Campaign};
 
 #[derive(Accounts)]
+#[instruction(bug_id: u8)]
 pub struct MintNft<'info> {
     #[account(mut)]
     pub minter: Signer<'info>,
@@ -21,7 +22,8 @@ pub struct MintNft<'info> {
     #[account(
         mut,
         constraint = collection.owner == &CORE_PROGRAM_ID @ ErrorCode::InvalidCollection,
-        constraint = !collection.data_is_empty() @ ErrorCode::CollectionNotInitialized
+        constraint = !collection.data_is_empty() @ ErrorCode::CollectionNotInitialized,
+        constraint = collection.key() == collection_authority.collection @ ErrorCode::InvalidCollection
     )]
     /// CHECK: This will also be checked by core
     pub collection: UncheckedAccount<'info>,
@@ -39,7 +41,7 @@ pub struct MintNft<'info> {
 }
 
 impl<'info> MintNft<'info> {
-    pub fn mint_nft(&mut self) -> Result<()> {
+    pub fn mint_nft(&mut self, bug_id: u8) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"collection",
             &self.collection.key().to_bytes(),
@@ -77,6 +79,10 @@ impl<'info> MintNft<'info> {
                             key: "Mint Timestamp".to_string(),
                             value: current_timestamp.to_string(),
                         },
+                        Attribute {
+                            key: "Bug ID".to_string(),
+                            value: bug_id.to_string(),
+                        },
                     ],
                 }),
                 authority: None,
@@ -88,8 +94,8 @@ impl<'info> MintNft<'info> {
     }
 }
 
-pub fn handler(ctx: Context<MintNft>) -> Result<()> {
-    ctx.accounts.mint_nft()?;
+pub fn handler(ctx: Context<MintNft>, bug_id: u8) -> Result<()> {
+    ctx.accounts.mint_nft(bug_id)?;
 
     Ok(())
 }

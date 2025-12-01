@@ -19,7 +19,25 @@ pub mod cmpgn {
         instructions::initialize_campaign::handler(ctx, campaign_id)
     }
 
-    // pub fn
+    pub fn create_collection(
+        ctx: Context<CreateCollection>,
+        campaign_id: u8,
+        args: CreateCollectionArgs,
+    ) -> Result<()> {
+        instructions::create_collection::handler(ctx, campaign_id, args)
+    }
+
+    pub fn record_campaign_completion(
+        ctx: Context<RecordCampaignCompletion>,
+        campaign_id: u8,
+        bug_id: u8,
+    ) -> Result<()> {
+        instructions::record_campaign_completion::handler(ctx, campaign_id, bug_id)
+    }
+
+    pub fn mint_nft(ctx: Context<MintNft>, bug_id: u8) -> Result<()> {
+        instructions::mint_nft::handler(ctx, bug_id)
+    }
 }
 
 //         constraint = campaign_completion.campaign_id == campaign.campaign_id @ ErrorCode::InvalidCampaignId
