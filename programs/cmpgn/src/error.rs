@@ -4,6 +4,10 @@ use anchor_lang::prelude::*;
 pub enum ErrorCode {
     #[msg("Invalid Campaign Id")]
     InvalidCampaignId,
+    #[msg("Campaign not initialized")]
+    CampaignNotStarted,
+    #[msg("Campaign already completed")]
+    CampaignAlreadyCompleted,
     #[msg("Invalid Bug Id")]
     InvalidBugId,
     #[msg("The payer is not the program's upgrade authority.")]

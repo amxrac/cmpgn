@@ -27,6 +27,10 @@ pub mod cmpgn {
         instructions::create_collection::handler(ctx, campaign_id, args)
     }
 
+    pub fn start_campaign(ctx: Context<StartCampaign>, campaign_id: u8, bug_id: u8) -> Result<()> {
+        instructions::start_campaign::handler(ctx, campaign_id, bug_id)
+    }
+
     pub fn record_campaign_completion(
         ctx: Context<RecordCampaignCompletion>,
         campaign_id: u8,
