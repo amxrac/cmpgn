@@ -20,4 +20,6 @@ pub enum ErrorCode {
     CollectionNotInitialized,
     #[msg("The collection is invalid.")]
     InvalidCollection,
+    #[msg("Unauthorized Player.")]
+    UnauthorizedPlayer,
 }

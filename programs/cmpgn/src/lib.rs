@@ -39,9 +39,12 @@ pub mod cmpgn {
         instructions::record_campaign_completion::handler(ctx, campaign_id, bug_id)
     }
 
-    pub fn mint_nft(ctx: Context<MintNft>, bug_id: u8) -> Result<()> {
-        instructions::mint_nft::handler(ctx, bug_id)
+    pub fn mint_nft(
+        ctx: Context<MintNft>,
+        bug_id: u8,
+        name: String,
+        nft_uri: String,
+    ) -> Result<()> {
+        instructions::mint_nft::handler(ctx, bug_id, name, nft_uri)
     }
 }
-
-//         constraint = campaign_completion.campaign_id == campaign.campaign_id @ ErrorCode::InvalidCampaignId

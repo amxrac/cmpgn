@@ -39,6 +39,16 @@ impl<'info> RecordCampaignCompletion<'info> {
         require!(bug_id >= 1 && bug_id <= 20, ErrorCode::InvalidBugId);
 
         require!(
+            campaign_id == self.campaign.campaign_id,
+            ErrorCode::InvalidCampaignId
+        );
+
+        require!(
+            self.campaign_completion.player == self.player.key(),
+            ErrorCode::UnauthorizedPlayer
+        );
+
+        require!(
             self.campaign_completion.campaign_start.is_some(),
             ErrorCode::CampaignNotStarted
         );
@@ -53,7 +63,7 @@ impl<'info> RecordCampaignCompletion<'info> {
         if self.player_progress.player == Pubkey::default() {
             self.player_progress.set_inner(PlayerProgress {
                 player: self.player.key(),
-                campaign_id: self.campaign.campaign_id,
+                campaign_id: campaign_id,
                 completed_bugs: Vec::new(),
                 total_completed_bugs: 0,
                 bump: self.player_progress.bump,

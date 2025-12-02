@@ -8,7 +8,7 @@ use mpl_core::{
 use crate::{error::ErrorCode, state::CollectionAuthority, Campaign};
 
 #[derive(Accounts)]
-#[instruction(bug_id: u8)]
+#[instruction(bug_id: u8, name: String, nft_uri: String)]
 pub struct MintNft<'info> {
     #[account(mut)]
     pub minter: Signer<'info>,
@@ -41,7 +41,7 @@ pub struct MintNft<'info> {
 }
 
 impl<'info> MintNft<'info> {
-    pub fn mint_nft(&mut self, bug_id: u8) -> Result<()> {
+    pub fn mint_nft(&mut self, bug_id: u8, name: String, nft_uri: String) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"collection",
             &self.collection.key().to_bytes(),
@@ -58,8 +58,8 @@ impl<'info> MintNft<'info> {
             .owner(Some(&self.minter.to_account_info()))
             .update_authority(None)
             .system_program(&self.system_program.to_account_info())
-            .name(self.collection_authority.nft_name.clone())
-            .uri(self.collection_authority.nft_uri.clone())
+            .name(name)
+            .uri(nft_uri)
             .plugins(vec![PluginAuthorityPair {
                 plugin: Plugin::Attributes(Attributes {
                     attribute_list: vec![
@@ -94,8 +94,8 @@ impl<'info> MintNft<'info> {
     }
 }
 
-pub fn handler(ctx: Context<MintNft>, bug_id: u8) -> Result<()> {
-    ctx.accounts.mint_nft(bug_id)?;
+pub fn handler(ctx: Context<MintNft>, bug_id: u8, name: String, nft_uri: String) -> Result<()> {
+    ctx.accounts.mint_nft(bug_id, name, nft_uri)?;
 
     Ok(())
 }

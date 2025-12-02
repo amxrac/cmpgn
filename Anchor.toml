@@ -8,6 +8,9 @@ skip-lint = false
 [programs.localnet]
 cmpgn = "AuXF95nT7WS865AzQpuj3os9r6DjTYY9ekh4mGgG6gfL"
 
+[programs.devnet]
+cmpgn = "AuXF95nT7WS865AzQpuj3os9r6DjTYY9ekh4mGgG6gfL"
+
 [registry]
 url = "https://api.apr.dev"
 
