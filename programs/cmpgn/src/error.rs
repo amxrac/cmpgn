@@ -8,6 +8,8 @@ pub enum ErrorCode {
     CampaignNotStarted,
     #[msg("Campaign already completed")]
     CampaignAlreadyCompleted,
+    #[msg("Campaign not completed")]
+    CampaignNotCompleted,
     #[msg("Invalid Bug Id")]
     InvalidBugId,
     #[msg("The payer is not the program's upgrade authority.")]
@@ -22,4 +24,6 @@ pub enum ErrorCode {
     InvalidCollection,
     #[msg("Unauthorized Player.")]
     UnauthorizedPlayer,
+    #[msg("NFT already minted")]
+    NftAlreadyMinted,
 }

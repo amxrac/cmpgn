@@ -35,7 +35,12 @@ pub struct RecordCampaignCompletion<'info> {
 }
 
 impl<'info> RecordCampaignCompletion<'info> {
-    pub fn record_campaign_completion(&mut self, campaign_id: u8, bug_id: u8) -> Result<()> {
+    pub fn record_campaign_completion(
+        &mut self,
+        campaign_id: u8,
+        bug_id: u8,
+        bumps: &RecordCampaignCompletionBumps,
+    ) -> Result<()> {
         require!(bug_id >= 1 && bug_id <= 20, ErrorCode::InvalidBugId);
 
         require!(
@@ -66,7 +71,7 @@ impl<'info> RecordCampaignCompletion<'info> {
                 campaign_id: campaign_id,
                 completed_bugs: Vec::new(),
                 total_completed_bugs: 0,
-                bump: self.player_progress.bump,
+                bump: bumps.player_progress,
             });
         }
 
@@ -85,5 +90,8 @@ impl<'info> RecordCampaignCompletion<'info> {
 }
 
 pub fn handler(ctx: Context<RecordCampaignCompletion>, campaign_id: u8, bug_id: u8) -> Result<()> {
-    ctx.accounts.record_campaign_completion(campaign_id, bug_id)
+    ctx.accounts
+        .record_campaign_completion(campaign_id, bug_id, &ctx.bumps)?;
+
+    Ok(())
 }

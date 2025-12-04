@@ -41,10 +41,11 @@ pub mod cmpgn {
 
     pub fn mint_nft(
         ctx: Context<MintNft>,
+        campaign_id: u8,
         bug_id: u8,
         name: String,
         nft_uri: String,
     ) -> Result<()> {
-        instructions::mint_nft::handler(ctx, bug_id, name, nft_uri)
+        instructions::mint_nft::handler(ctx, campaign_id, bug_id, name, nft_uri)
     }
 }

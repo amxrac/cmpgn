@@ -18,17 +18,22 @@ pub struct StartCampaign<'info> {
     )]
     pub campaign_completion: Account<'info, CampaignCompletion>,
 
-    // #[account(
-    //     mut,
-    //     seeds = [b"campaign", campaign_id.to_le_bytes().as_ref()],
-    //     bump,
-    // )]
-    // pub campaign: Box<Account<'info, Campaign>>,
+    #[account(
+        mut,
+        seeds = [b"campaign", campaign_id.to_le_bytes().as_ref()],
+        bump,
+    )]
+    pub campaign: Box<Account<'info, Campaign>>,
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> StartCampaign<'info> {
-    pub fn start_campaign(&mut self, campaign_id: u8, bug_id: u8) -> Result<()> {
+    pub fn start_campaign(
+        &mut self,
+        campaign_id: u8,
+        bug_id: u8,
+        bumps: &StartCampaignBumps,
+    ) -> Result<()> {
         require!(bug_id >= 1 && bug_id <= 20, ErrorCode::InvalidBugId);
 
         let now = Clock::get()?.unix_timestamp;
@@ -41,7 +46,7 @@ impl<'info> StartCampaign<'info> {
             timestamp: None,
             bug_id,
             nft_mint_address: None,
-            bump: self.campaign_completion.bump,
+            bump: bumps.campaign_completion,
         });
 
         Ok(())
@@ -49,7 +54,8 @@ impl<'info> StartCampaign<'info> {
 }
 
 pub fn handler(ctx: Context<StartCampaign>, campaign_id: u8, bug_id: u8) -> Result<()> {
-    ctx.accounts.start_campaign(campaign_id, bug_id)?;
+    ctx.accounts
+        .start_campaign(campaign_id, bug_id, &ctx.bumps)?;
 
     Ok(())
 }

@@ -5,13 +5,13 @@ use mpl_core::{
     ID as CORE_PROGRAM_ID,
 };
 
-use crate::{error::ErrorCode, state::CollectionAuthority, Campaign};
+use crate::{error::ErrorCode, state::CollectionAuthority, CampaignCompletion};
 
 #[derive(Accounts)]
-#[instruction(bug_id: u8, name: String, nft_uri: String)]
+#[instruction(bug_id: u8, campaign_id: u8)]
 pub struct MintNft<'info> {
     #[account(mut)]
-    pub minter: Signer<'info>,
+    pub player: Signer<'info>,
 
     #[account(
         mut,
@@ -34,6 +34,16 @@ pub struct MintNft<'info> {
     )]
     pub collection_authority: Box<Account<'info, CollectionAuthority>>,
 
+    #[account(
+        mut,
+        seeds = [b"completion", campaign_id.to_le_bytes().as_ref(), player.key().as_ref(), bug_id.to_le_bytes().as_ref()],
+        bump,
+        constraint = campaign_completion.player == player.key() @ ErrorCode::UnauthorizedPlayer,
+        constraint = campaign_completion.campaign_end.is_some() @ ErrorCode::CampaignNotCompleted,
+        constraint = campaign_completion.nft_mint_address.is_none() @ ErrorCode::NftAlreadyMinted,
+    )]
+    pub campaign_completion: Box<Account<'info, CampaignCompletion>>,
+
     #[account(address = CORE_PROGRAM_ID)]
     /// CHECK: This will also be checked by core
     pub core_program: UncheckedAccount<'info>,
@@ -41,7 +51,13 @@ pub struct MintNft<'info> {
 }
 
 impl<'info> MintNft<'info> {
-    pub fn mint_nft(&mut self, bug_id: u8, name: String, nft_uri: String) -> Result<()> {
+    pub fn mint_nft(
+        &mut self,
+        campaign_id: u8,
+        bug_id: u8,
+        name: String,
+        nft_uri: String,
+    ) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"collection",
             &self.collection.key().to_bytes(),
@@ -54,8 +70,8 @@ impl<'info> MintNft<'info> {
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))
             .authority(Some(&self.collection_authority.to_account_info()))
-            .payer(&self.minter.to_account_info())
-            .owner(Some(&self.minter.to_account_info()))
+            .payer(&self.player.to_account_info())
+            .owner(Some(&self.player.to_account_info()))
             .update_authority(None)
             .system_program(&self.system_program.to_account_info())
             .name(name)
@@ -69,7 +85,7 @@ impl<'info> MintNft<'info> {
                         },
                         Attribute {
                             key: "Minter".to_string(),
-                            value: self.minter.key().to_string(),
+                            value: self.player.key().to_string(),
                         },
                         Attribute {
                             key: "Collection".to_string(),
@@ -90,12 +106,19 @@ impl<'info> MintNft<'info> {
             .external_plugin_adapters(vec![])
             .invoke_signed(signer_seeds)?;
 
+        self.campaign_completion.nft_mint_address = Some(self.asset.key());
         Ok(())
     }
 }
 
-pub fn handler(ctx: Context<MintNft>, bug_id: u8, name: String, nft_uri: String) -> Result<()> {
-    ctx.accounts.mint_nft(bug_id, name, nft_uri)?;
+pub fn handler(
+    ctx: Context<MintNft>,
+    campaign_id: u8,
+    bug_id: u8,
+    name: String,
+    nft_uri: String,
+) -> Result<()> {
+    ctx.accounts.mint_nft(campaign_id, bug_id, name, nft_uri)?;
 
     Ok(())
 }
