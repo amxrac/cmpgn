@@ -46,4 +46,8 @@ pub mod cmpgn {
     ) -> Result<()> {
         instructions::mint_nft::handler(ctx, campaign_id, bug_id, name, nft_uri)
     }
+
+    pub fn get_player_progress(ctx: Context<GetPlayerProgress>, campaign_id: u8) -> Result<()> {
+        instructions::get_player_progress::handler(ctx, campaign_id)
+    }
 }
