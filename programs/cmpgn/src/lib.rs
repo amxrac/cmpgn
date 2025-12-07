@@ -58,4 +58,8 @@ pub mod cmpgn {
     ) -> Result<()> {
         instructions::has_completed_bug::handler(ctx, campaign_id, bug_id)
     }
+
+    pub fn get_campaign_stats(ctx: Context<GetCampaignStats>, campaign_id: u8) -> Result<()> {
+        instructions::get_campaign_stats::handler(ctx, campaign_id)
+    }
 }

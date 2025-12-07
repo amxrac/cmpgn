@@ -658,13 +658,97 @@ describe("cmpgn", () => {
           })
           .signers([invalidPlayer])
           .rpc();
-        expect.fail("Should fail");
+        expect.fail("Should fail for an invalid player");
       } catch (error: any) {
         expect(error.error?.errorCode?.code || error.message).to.satisfy(
           (msg: string) =>
             msg.includes("AccountNotInitialized") ||
             msg.includes("Account does not exist")
         );
+      }
+    });
+  });
+
+  describe("Get Campaign stats", () => {
+    it("gets the campaign stats with a valid game authority", async () => {
+      try {
+        const sig = await program.methods
+          .getCampaignStats(campaignId)
+          .accounts({
+            gameAuthority: gameAuthority.publicKey,
+            campaign: campaignPda,
+          })
+          .rpc({ commitment: "confirmed" });
+
+        const tx = await provider.connection.getTransaction(sig, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
+
+        expect(tx?.meta?.logMessages).to.exist;
+
+        const eventParser = new EventParser(program.programId, program.coder);
+        const events = [];
+        for (const event of eventParser.parseLogs(tx.meta.logMessages)) {
+          events.push(event);
+        }
+
+        expect(events).to.have.lengthOf.at.least(1);
+        expect(events[0].name).to.equal("campaignStatsEvent");
+        expect(events[0].data.totalCompletions).to.exist;
+
+        expect(events[0].data.campaignId).to.equal(campaignId);
+      } catch (error: any) {
+        console.error(`something went wrong: ${error}`);
+        if (error.logs && Array.isArray(error.logs)) {
+          console.log("Transaction Logs:");
+          error.logs.forEach((log: string) => console.log(log));
+        } else {
+          console.log("No logs available in the error.");
+        }
+      }
+    });
+
+    it("fails to get the campaign stats for an invalid campaign", async () => {
+      const invalidCampaignId = 254;
+      const invalidCampaignPda = PublicKey.findProgramAddressSync(
+        [Buffer.from("campaign"), Buffer.from([invalidCampaignId])],
+        program.programId
+      )[0];
+
+      try {
+        await program.methods
+          .getCampaignStats(invalidCampaignId)
+          .accounts({
+            gameAuthority: gameAuthority.publicKey,
+            campaign: invalidCampaignPda,
+          })
+          .rpc();
+        expect.fail("Should fail with invalid campaign");
+      } catch (error: any) {
+        expect(error.error?.errorCode?.code || error.message).to.satisfy(
+          (msg: string) =>
+            msg.includes("AccountNotInitialized") ||
+            msg.includes("Account does not exist")
+        );
+      }
+    });
+
+    it("fails to get the campaign stats with an invalid game authority", async () => {
+      const invalidGameAuthority = Keypair.generate();
+      try {
+        const sig = await program.methods
+          .getCampaignStats(campaignId)
+          .accounts({
+            gameAuthority: invalidGameAuthority.publicKey,
+            campaign: campaignPda,
+          })
+          .signers([invalidGameAuthority])
+          .rpc({ commitment: "confirmed" });
+
+        expect.fail("Should fail with invalid game authority");
+      } catch (error: any) {
+        expect(error.error?.errorCode?.code).to.equal("ConstraintHasOne");
       }
     });
   });
