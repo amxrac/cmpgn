@@ -517,5 +517,155 @@ describe("cmpgn", () => {
         }
       }
     });
+
+    it("fails to get the current player progress for an invalid player", async () => {
+      const invalidPlayer = Keypair.generate();
+
+      const invalidPlayerProgressPda = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("progress"),
+          Buffer.from([campaignId]),
+          invalidPlayer.publicKey.toBuffer(),
+        ],
+        program.programId
+      )[0];
+
+      try {
+        await program.methods
+          .getPlayerProgress(campaignId)
+          .accounts({
+            player: invalidPlayer.publicKey,
+            playerProgress: invalidPlayerProgressPda,
+          })
+          .signers([invalidPlayer])
+          .rpc();
+        expect.fail("Should fail with uninitialized player progress");
+      } catch (error: any) {
+        expect(error.error?.errorCode?.code || error.message).to.satisfy(
+          (msg: string) =>
+            msg.includes("AccountNotInitialized") ||
+            msg.includes("Account does not exist")
+        );
+      }
+    });
+  });
+
+  describe("Check if player has completed bug", () => {
+    it("returns completed: true if a valid player has completed a valid bug", async () => {
+      try {
+        const sig = await program.methods
+          .hasCompletedBug(campaignId, bugId)
+          .accounts({
+            player: player.publicKey,
+            playerProgress: playerProgressPda,
+          })
+          .signers([player])
+          .rpc({ commitment: "confirmed" });
+
+        const tx = await provider.connection.getTransaction(sig, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
+
+        expect(tx?.meta?.logMessages).to.exist;
+
+        const eventParser = new EventParser(program.programId, program.coder);
+        const events = [];
+        for (const event of eventParser.parseLogs(tx.meta.logMessages)) {
+          events.push(event);
+        }
+
+        expect(events).to.have.lengthOf.at.least(1);
+        expect(events[0].name).to.equal("completedBugEvent");
+        expect(events[0].data.player.toString()).to.equal(
+          player.publicKey.toString()
+        );
+        expect(events[0].data.campaignId).to.equal(campaignId);
+        expect(events[0].data.bugId).to.equal(bugId);
+        expect(events[0].data.completed).to.be.true;
+      } catch (error: any) {
+        console.error(`something went wrong: ${error}`);
+        if (error.logs && Array.isArray(error.logs)) {
+          console.log("Transaction Logs:");
+          error.logs.forEach((log: string) => console.log(log));
+        } else {
+          console.log("No logs available in the error.");
+        }
+      }
+    });
+
+    it("returns completed: false if a valid player has completed a invalid bug", async () => {
+      const InvalidBugId = 9;
+      try {
+        const sig = await program.methods
+          .hasCompletedBug(campaignId, InvalidBugId)
+          .accounts({
+            player: player.publicKey,
+            playerProgress: playerProgressPda,
+          })
+          .signers([player])
+          .rpc({ commitment: "confirmed" });
+
+        const tx = await provider.connection.getTransaction(sig, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
+
+        expect(tx?.meta?.logMessages).to.exist;
+
+        const eventParser = new EventParser(program.programId, program.coder);
+        const events = [];
+        for (const event of eventParser.parseLogs(tx.meta.logMessages)) {
+          events.push(event);
+        }
+
+        expect(events).to.have.lengthOf.at.least(1);
+        expect(events[0].name).to.equal("completedBugEvent");
+        expect(events[0].data.player.toString()).to.equal(
+          player.publicKey.toString()
+        );
+        expect(events[0].data.campaignId).to.equal(campaignId);
+        expect(events[0].data.bugId).to.equal(InvalidBugId);
+        expect(events[0].data.completed).to.be.false;
+      } catch (error: any) {
+        console.error(`something went wrong: ${error}`);
+        if (error.logs && Array.isArray(error.logs)) {
+          console.log("Transaction Logs:");
+          error.logs.forEach((log: string) => console.log(log));
+        } else {
+          console.log("No logs available in the error.");
+        }
+      }
+    });
+
+    it("fails for an invalid player with no progress", async () => {
+      const invalidPlayer = Keypair.generate();
+      const invalidProgressPda = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("progress"),
+          Buffer.from([campaignId]),
+          invalidPlayer.publicKey.toBuffer(),
+        ],
+        program.programId
+      )[0];
+
+      try {
+        await program.methods
+          .hasCompletedBug(campaignId, bugId)
+          .accounts({
+            player: invalidPlayer.publicKey,
+            playerProgress: invalidProgressPda,
+          })
+          .signers([invalidPlayer])
+          .rpc();
+        expect.fail("Should fail");
+      } catch (error: any) {
+        expect(error.error?.errorCode?.code || error.message).to.satisfy(
+          (msg: string) =>
+            msg.includes("AccountNotInitialized") ||
+            msg.includes("Account does not exist")
+        );
+      }
+    });
   });
 });

@@ -50,4 +50,12 @@ pub mod cmpgn {
     pub fn get_player_progress(ctx: Context<GetPlayerProgress>, campaign_id: u8) -> Result<()> {
         instructions::get_player_progress::handler(ctx, campaign_id)
     }
+
+    pub fn has_completed_bug(
+        ctx: Context<HasCompletedBug>,
+        campaign_id: u8,
+        bug_id: u8,
+    ) -> Result<()> {
+        instructions::has_completed_bug::handler(ctx, campaign_id, bug_id)
+    }
 }

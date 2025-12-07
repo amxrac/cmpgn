@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::error::ErrorCode;
-use crate::{CampaignCompletion, PlayerProgress};
+use crate::PlayerProgress;
 
 #[event]
 pub struct PlayerProgressEvent {
