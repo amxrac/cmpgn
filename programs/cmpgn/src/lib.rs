@@ -62,4 +62,8 @@ pub mod cmpgn {
     pub fn get_campaign_stats(ctx: Context<GetCampaignStats>, campaign_id: u8) -> Result<()> {
         instructions::get_campaign_stats::handler(ctx, campaign_id)
     }
+
+    pub fn get_daily_bug(ctx: Context<GetDailyBug>) -> Result<()> {
+        instructions::get_daily_bug::handler(ctx)
+    }
 }

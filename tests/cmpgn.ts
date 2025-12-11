@@ -752,4 +752,32 @@ describe("cmpgn", () => {
       }
     });
   });
+
+  describe("Get Daily Bug", () => {
+    it("gets the daily bug for a player", async () => {
+      const sig = await program.methods
+        .getDailyBug()
+        .accounts({
+          player: player.publicKey,
+        })
+        .signers([player])
+        .rpc({ commitment: "confirmed" });
+
+      const tx = await provider.connection.getTransaction(sig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+
+      expect(tx?.meta?.logMessages).to.exist;
+
+      const eventParser = new EventParser(program.programId, program.coder);
+      const events = [];
+      for (const event of eventParser.parseLogs(tx.meta.logMessages)) {
+        events.push(event);
+      }
+      expect(events).to.have.lengthOf(1);
+      expect(events[0].name).to.equal("dailyBugEvent");
+      expect(events[0].data.bugId).to.be.within(1, 20);
+    });
+  });
 });
