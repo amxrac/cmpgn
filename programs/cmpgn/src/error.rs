@@ -26,4 +26,12 @@ pub enum ErrorCode {
     UnauthorizedPlayer,
     #[msg("NFT already minted")]
     NftAlreadyMinted,
+    #[msg("Daily bug already requested today")]
+    BugAlreadyRequested,
+    #[msg("Daily bug not requested")]
+    BugNotRequested,
+    #[msg("Randomness not fulfilled")]
+    RandomnessNotFulfilled,
+    #[msg("Daily Bug already consumed")]
+    BugAlreadyConsumed,
 }

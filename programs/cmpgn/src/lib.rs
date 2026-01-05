@@ -63,7 +63,11 @@ pub mod cmpgn {
         instructions::get_campaign_stats::handler(ctx, campaign_id)
     }
 
-    pub fn get_daily_bug(ctx: Context<GetDailyBug>) -> Result<()> {
-        instructions::get_daily_bug::handler(ctx)
+    pub fn request_daily_bug(ctx: Context<RequestDailyBug>, force: [u8; 32]) -> Result<()> {
+        instructions::request_daily_bug::handler(ctx, force)
+    }
+
+    pub fn consume_daily_bug(ctx: Context<ConsumeDailyBug>) -> Result<()> {
+        instructions::consume_daily_bug::handler(ctx)
     }
 }

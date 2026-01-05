@@ -8,7 +8,7 @@ use mpl_core::{
 use crate::{error::ErrorCode, state::CollectionAuthority, CampaignCompletion};
 
 #[derive(Accounts)]
-#[instruction(bug_id: u8, campaign_id: u8)]
+#[instruction(campaign_id: u8, bug_id: u8)]
 pub struct MintNft<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
@@ -64,8 +64,6 @@ impl<'info> MintNft<'info> {
             &[self.collection_authority.bump],
         ]];
 
-        let current_timestamp = Clock::get()?.unix_timestamp;
-
         CreateV2CpiBuilder::new(&self.core_program.to_account_info())
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))
@@ -90,10 +88,6 @@ impl<'info> MintNft<'info> {
                         Attribute {
                             key: "Collection".to_string(),
                             value: self.collection.key().to_string(),
-                        },
-                        Attribute {
-                            key: "Mint Timestamp".to_string(),
-                            value: current_timestamp.to_string(),
                         },
                         Attribute {
                             key: "Bug ID".to_string(),

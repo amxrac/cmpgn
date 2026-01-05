@@ -21,7 +21,7 @@ pub struct GetPlayerProgress<'info> {
         seeds = [b"progress", campaign_id.to_le_bytes().as_ref(), player.key().as_ref()],
         bump
     )]
-    pub player_progress: Account<'info, PlayerProgress>,
+    pub player_progress: Box<Account<'info, PlayerProgress>>,
 }
 
 impl<'info> GetPlayerProgress<'info> {

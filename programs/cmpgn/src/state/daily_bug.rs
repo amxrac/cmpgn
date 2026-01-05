@@ -4,7 +4,6 @@ use anchor_lang::prelude::*;
 #[derive(InitSpace)]
 pub struct DailyBug {
     pub bug_id: Option<u8>,
-    pub day: i8,
-    pub seed: [u8; 32],
-    pub requested_at: i64,
+    pub day: i64,
+    pub force: [u8; 32],
 }

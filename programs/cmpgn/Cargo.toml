@@ -21,11 +21,10 @@ custom-panic = []
 
 
 [dependencies]
-anchor-lang = {version = "0.32.1", features = ["init-if-needed"]}
+anchor-lang = {version = "0.31.1", features = ["init-if-needed"]}
 mpl-core = { version = "0.11.1", features = ["anchor"] }
 indexmap = "=2.11.4"
-# orao-solana-vrf = "0.6.1"
-
+orao-solana-vrf = { version = "0.6.1", default-features = false, features = ["cpi"] }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

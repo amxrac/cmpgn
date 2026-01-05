@@ -18,7 +18,7 @@ pub struct GetCampaignStats<'info> {
             bump,
             has_one = game_authority
         )]
-    pub campaign: Account<'info, Campaign>,
+    pub campaign: Box<Account<'info, Campaign>>,
 }
 
 impl<'info> GetCampaignStats<'info> {
